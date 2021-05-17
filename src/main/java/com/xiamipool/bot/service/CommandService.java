@@ -9,6 +9,7 @@ import com.mashape.unirest.http.Unirest;
 import org.apache.http.HttpHost;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 import org.telegram.telegrambots.meta.api.objects.Chat;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
@@ -35,8 +36,42 @@ public class CommandService {
     private static Map<String, String> maps = new HashMap<>();
 
     static {
-        maps.put("/airdrop", "You are now participating in the XiaMiPool airdrop!\n" +
+        maps.put("/airdrop", "You are now participating in the XiaMiPool airdrop!" +
                 "For every ticket you will receive more $XMPT tokens in our airdrop. Refer your friends through your unique URL to receive more tickets.");
+
+        maps.put("/invite", "*What is XiaMi-Fishing*" +
+                "\n" +
+                "   https://doc.xiamipool.com/\n" +
+                "\n" +
+                "*Ofiicial Webs:*\n" +
+                "\n" +
+                "    【BSC】\n" +
+                "     https://bsc.xiamipool.com/\n" +
+                "\n" +
+                "    【HECO】\n" +
+                "     https://heco.xiamipool.com\n" +
+                "\n" +
+                "*How to use bsc wallet*\n" +
+                "\n" +
+                "    【Metamask】\n" +
+                "    https://docs.binance.org/smart-chain/wallet/metamask.html\n" +
+                "    \n" +
+                "    【Mathwallet】\n" +
+                "    https://docs.binance.org/smart-chain/wallet/math.html\n" +
+                "    \n" +
+                "    【Trustwallet】\n" +
+                "    https://docs.binance.org/smart-chain/wallet/trustwallet.html\n" +
+                "    \n" +
+                "*Token Information Of XMPT*\n" +
+                "    \n" +
+                "    XMPT BSC Contact Address：\n" +
+                "    0x8099c0c7b3e530f563d4b121abd2ee365c72fb78\n" +
+                "\n" +
+                "    Pancakeswap：\n" +
+                "    https://exchange.pancakeswap.finance/#/swap?outputCurrency=0x8099c0c7b3e530f563d4b121abd2ee365c72fb78\n" +
+                "    \n" +
+                "    Trading History：\n" +
+                "    https://www.dextools.io/app/pancakeswap/pair-explorer/0xdcf0ccb215c854ff99900d608aad6a7d778e500d");
     }
 
     public boolean hook(String body) throws Exception {
@@ -45,49 +80,31 @@ public class CommandService {
         JSONObject msg = jsonObject.getJSONObject("message");
         String cmd = msg.getString("text");
         message.setChat(JSONObject.parseObject(msg.getString("chat"), Chat.class));
-        if (AIRDROP.equals(cmd)) {
-            message.setText(getText(cmd));
-            sendTextMsg(message);
-        } else if (HELP.equals(cmd)) {
-            sendGraphicsMsg(message);
-        } else {
-            sendGraphicsMsg(message);
+        String text = getText(cmd);
+        if (StringUtils.isEmpty(text)) {
+            text = "sorry, no such command!";
         }
-        return true;
+
+        message.setText(text);
+        if (AIRDROP.equals(cmd)) {
+            return sendTextMsg(message);
+        } else if (HELP.equals(cmd)) {
+            return sendGraphicsMsg(message);
+        } else {
+            return sendTextMsg(message);
+        }
     }
 
     public static void main(String[] args) throws Exception {
         Unirest.setProxy(new HttpHost("127.0.0.1", 10809));
-        JSONArray menus = JSONObject.parseArray(getResource(new ClassPathResource("init/menu.json")));
-        InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup();
-        List<List<InlineKeyboardButton>> rows = new ArrayList<>();
-        Message message = new Message();
-        for (int i = 0; i < menus.size(); i++) {
-            List<InlineKeyboardButton> row = new ArrayList<>();
-            JSONObject jsonObject = menus.getJSONObject(i);
-            message.setText(jsonObject.getString("text"));
-            JSONArray buttons = jsonObject.getJSONArray("children");
-            for (int j = 0; j < buttons.size(); j++) {
-                InlineKeyboardButton button = new InlineKeyboardButton();
-                JSONObject json = buttons.getJSONObject(j);
-                button.setText(json.getString("text"));
-                button.setCallbackData(json.getString("callback_data"));
-                button.setUrl(json.getString("url"));
-                row.add(button);
-            }
-            rows.add(row);
-        }
-
-        inlineKeyboardMarkup.setKeyboard(rows);
-        HttpResponse<JsonNode> res = Unirest.post(API_BOT_URL + "/sendMessage")
+        HttpResponse<JsonNode> res = Unirest.post(API_BOT_URL_TEST + "/sendMessage")
                 .field("chat_id", "1892245219")
-                .field("text", message.getText())
-                .field("reply_markup", new ObjectMapper().writeValueAsString(inlineKeyboardMarkup))
+                .field("parse_mode", "Markdown")
+                .field("text", getText("/invite"))
                 .asJson();
-        System.out.println(res);
     }
 
-    private void sendGraphicsMsg(Message message) throws Exception {
+    private boolean sendGraphicsMsg(Message message) throws Exception {
         JSONArray menus = JSONObject.parseArray(getResource(new ClassPathResource("init/menu.json")));
         InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup();
         List<List<InlineKeyboardButton>> rows = new ArrayList<>();
@@ -113,14 +130,15 @@ public class CommandService {
                 .field("text", message.getText())
                 .field("reply_markup", new ObjectMapper().writeValueAsString(inlineKeyboardMarkup))
                 .asJson();
-        System.out.println(res);
+        return 200 == res.getStatus();
     }
 
-    private void sendTextMsg(Message message) throws Exception {
+    private boolean sendTextMsg(Message message) throws Exception {
         HttpResponse<JsonNode> res = Unirest.post(API_BOT_URL + "/sendMessage")
                 .field("chat_id", message.getChatId())
                 .field("text", message.getText())
                 .asJson();
+        return 200 == res.getStatus();
     }
 
     private static String getResource(ClassPathResource resource) {

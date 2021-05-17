@@ -6,28 +6,6 @@
     "children": [
       {
         "type": "button",
-        "name": "airdrop",
-        "text": "AirDrop",
-        "url": "https://twitter.com/XiaMiPool/status/1389994753643532290",
-        "callback_data": "You are now participating in the XiaMiPool airdrop!"
-      },
-      {
-        "type": "button",
-        "name": "Share on twitter",
-        "text": "Share on twitter",
-        "url": "https://twitter.com/intent/tweet?text=Join%20the%20Solanium%20airdrop%20and%20public%20sale%20whitelist%2C%20use%20my%20referral%20link%20to%20receive%20one%20extra%20ticket%21%20%24SOL%20%24SLIM&url=https%3A//solanium.io/%3Fcode%3DAaoPTXx0",
-        "callback_data": ""
-      }
-    ]
-  },
-
-  {
-    "type": "dir",
-    "name": "row2",
-    "text": "What do you want to do with the bot?",
-    "children": [
-      {
-        "type": "button",
         "name": "telegram",
         "text": "Join Community Chat",
         "url": "https://t.me/xiamipool",
