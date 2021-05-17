@@ -1,0 +1,15 @@
+server:
+  port: 8877
+  compression:
+    enabled: true
+
+# ===================================================================
+# Servlet Config
+# ===================================================================
+spring:
+  jackson:
+    serialization:
+      # date返回格式更改为时间戳
+      write-dates-as-timestamps: true
+  application:
+    name: telegram-bot

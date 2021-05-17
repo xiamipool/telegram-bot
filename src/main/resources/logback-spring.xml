@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--官方文档指明，logback.xml加载早于application.yml，需改用logback-spring.xml实现日志配置 -->
+<configuration scan="true" scanPeriod="10 seconds">
+    <!--引入默认的一些设置-->
+    <include resource="org/springframework/boot/logging/logback/defaults.xml"/>
+
+    <!--官方文档指明，需要使用<springProperty>,才可使用application.properties（或application.yml）中的值 -->
+    <!--<springProperty scope="context" name="logLevel" source="logging.level"/>-->
+
+    <!--写入日志到控制台的appender,用默认的,但是要去掉charset,否则windows下tomcat下乱码-->
+    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss} [%-5level] [%class:%line] - %m %n</pattern>
+        </encoder>
+    </appender>
+
+    <!--写入日志到文件的appender-->
+    <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>bot.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <!--日志文件输出的文件名,每天一个文件-->
+            <fileNamePattern>log/bot.%d{yyyy-MM-dd}.%i.log</fileNamePattern>
+            <!--日志文件保留天数-->
+            <maxHistory>30</maxHistory>
+            <!--日志文件最大的大小-->
+            <maxFileSize>100MB</maxFileSize>
+        </rollingPolicy>
+        <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+            <pattern>%d{yyyy-MM-dd HH:mm:ss} [%-5level] [%class:%line] - %m %n</pattern>
+        </encoder>
+    </appender>
+
+    <!--异步到文件-->
+    <appender name="asyncFileAppender" class="ch.qos.logback.classic.AsyncAppender">
+        <discardingThreshold>0</discardingThreshold>
+        <queueSize>500</queueSize>
+        <appender-ref ref="FILE"/>
+    </appender>
+
+    <logger name="org.springframework" level="info"/>
+    <logger name="springfox.documentation" level="info"/>
+    <logger name="org.hibernate" level="info"/>
+    <logger name="org.apache" level="info"/>
+    <logger name="io.lettuce" level="info"/>
+    <logger name="com.alibaba.druid.pool" level="info"/>
+    <logger name="java.util.logging" level="info"/>
+    <logger name="org.apache.http.impl.conn.PoolingHttpClientConnectionManager" level="info"/>
+
+    <logger name="org.springframework.web.servlet" level="warn"/>
+    <logger name="org.springframework.jmx" level="warn"/>
+    <logger name="org.springframework.orm.jpa" level="warn"/>
+    <logger name="org.springframework.data.repository.config" level="warn"/>
+    <logger name="org.springframework.context.support" level="warn"/>
+    <logger name="springfox.documentation.spring.web.readers.operation" level="warn"/>
+
+    <root level="info">
+        <appender-ref ref="CONSOLE"/>
+        <appender-ref ref="FILE"/>
+    </root>
+
+    <springProfile name="test">
+        <root level="debug">
+            <appender-ref ref="CONSOLE"/>
+            <appender-ref ref="FILE"/>
+        </root>
+    </springProfile>
+</configuration>
