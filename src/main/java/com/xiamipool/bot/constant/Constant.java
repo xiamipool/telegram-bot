@@ -1,5 +1,7 @@
 package com.xiamipool.bot.constant;
 
+import java.io.File;
+
 /**
  * 常量
  */
@@ -9,6 +11,7 @@ public class Constant {
     public static final String CONNECTOR = "_";
     public static final String SLASH = "/";
     public static final String CHARSET = "UTF-8";
+    public static final File PID_FILE = new File("flag.pid");
 
     public static class Command {
         /**

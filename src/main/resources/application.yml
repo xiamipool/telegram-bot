@@ -9,7 +9,6 @@ server:
 spring:
   jackson:
     serialization:
-      # date返回格式更改为时间戳
       write-dates-as-timestamps: true
   application:
     name: telegram-bot

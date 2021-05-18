@@ -19,10 +19,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static com.xiamipool.bot.constant.Constant.Command.AIRDROP;
 import static com.xiamipool.bot.constant.Constant.Command.HELP;
@@ -33,13 +30,16 @@ public class CommandService {
     private final static String API_BOT_URL_TEST = "https://api.telegram.org/bot1813773806:AAF0D996Js7QxcX385js6uD2fpHIMkrJbEo";
     private final static String API_BOT_URL = "https://api.telegram.org/bot1707053096:AAE7yQ7cqSUB9xG6Ryev09UPPINxdLQe54E";
 
+    private final static String GROUP_ID_TEST = "-522989399";
+    private final static String GROUP_ID = "-522989399";
+
     private static Map<String, String> maps = new HashMap<>();
 
     static {
         maps.put("/airdrop", "You are now participating in the XiaMiPool airdrop!" +
                 "For every ticket you will receive more $XMPT tokens in our airdrop. Refer your friends through your unique URL to receive more tickets.");
 
-        maps.put("/invite", "*What is XiaMi-Fishing*" +
+        maps.put("/doc", "*What is XiaMi-Fishing*" +
                 "\n" +
                 "   https://doc.xiamipool.com/\n" +
                 "\n" +
@@ -60,24 +60,30 @@ public class CommandService {
                 "    https://docs.binance.org/smart-chain/wallet/math.html\n" +
                 "    \n" +
                 "    【Trustwallet】\n" +
-                "    https://docs.binance.org/smart-chain/wallet/trustwallet.html\n" +
+                "    https://docs.binance.org/smart-chain/wallet/trustwallet.html");
+
+        maps.put("/token", "*Token Information Of XMPT*\n" +
                 "    \n" +
-                "*Token Information Of XMPT*\n" +
-                "    \n" +
-                "    XMPT BSC Contact Address：\n" +
+                "    【XMPT BSC Contact Address】\n" +
                 "    0x8099c0c7b3e530f563d4b121abd2ee365c72fb78\n" +
                 "\n" +
-                "    Pancakeswap：\n" +
+                "    【Pancakeswap】\n" +
                 "    https://exchange.pancakeswap.finance/#/swap?outputCurrency=0x8099c0c7b3e530f563d4b121abd2ee365c72fb78\n" +
                 "    \n" +
-                "    Trading History：\n" +
+                "    【Trading History】\n" +
                 "    https://www.dextools.io/app/pancakeswap/pair-explorer/0xdcf0ccb215c854ff99900d608aad6a7d778e500d");
     }
 
+    // 回调
     public boolean hook(String body) throws Exception {
         Message message = new Message();
         JSONObject jsonObject = JSONObject.parseObject(body);
         JSONObject msg = jsonObject.getJSONObject("message");
+        if (Objects.isNull(msg)) {
+            System.out.println("hook not dealt with yet");
+            return false;
+        }
+
         String cmd = msg.getString("text");
         message.setChat(JSONObject.parseObject(msg.getString("chat"), Chat.class));
         String text = getText(cmd);
@@ -95,12 +101,21 @@ public class CommandService {
         }
     }
 
+    // 文档/Token信息
+    public void sendDoc(String cmd) {
+        try {
+            sendTextMsg(GROUP_ID, getText(cmd));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
     public static void main(String[] args) throws Exception {
         Unirest.setProxy(new HttpHost("127.0.0.1", 10809));
-        HttpResponse<JsonNode> res = Unirest.post(API_BOT_URL_TEST + "/sendMessage")
-                .field("chat_id", "1892245219")
+        HttpResponse<JsonNode> res = Unirest.post(API_BOT_URL + "/sendMessage")
+                .field("chat_id", "-522989399")
                 .field("parse_mode", "Markdown")
-                .field("text", getText("/invite"))
+                .field("text", getText("/token"))
                 .asJson();
     }
 
@@ -136,7 +151,17 @@ public class CommandService {
     private boolean sendTextMsg(Message message) throws Exception {
         HttpResponse<JsonNode> res = Unirest.post(API_BOT_URL + "/sendMessage")
                 .field("chat_id", message.getChatId())
+                .field("parse_mode", "Markdown")
                 .field("text", message.getText())
+                .asJson();
+        return 200 == res.getStatus();
+    }
+
+    private boolean sendTextMsg(String chatId, String text) throws Exception {
+        HttpResponse<JsonNode> res = Unirest.post(API_BOT_URL + "/sendMessage")
+                .field("chat_id", chatId)
+                .field("parse_mode", "Markdown")
+                .field("text", text)
                 .asJson();
         return 200 == res.getStatus();
     }

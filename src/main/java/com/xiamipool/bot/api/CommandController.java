@@ -27,7 +27,7 @@ public class CommandController {
 
     @ApiOperation(value = "指令回调")
     @PostMapping(value = "hook")
-    public synchronized boolean hook(HttpServletRequest request) throws Exception{
+    public synchronized boolean hook(HttpServletRequest request) throws Exception {
         StringBuilder sb = new StringBuilder();
         try {
             ServletInputStream servletInputStream = request.getInputStream();
@@ -37,6 +37,7 @@ public class CommandController {
             while ((line = reader.readLine()) != null) {
                 sb.append(line);
             }
+            log.info("hello:{}", sb.toString());
             return commandService.hook(sb.toString());
         } catch (IOException e) {
             e.printStackTrace();
