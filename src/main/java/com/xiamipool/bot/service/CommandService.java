@@ -31,7 +31,7 @@ public class CommandService {
     private final static String API_BOT_URL = "https://api.telegram.org/bot1707053096:AAE7yQ7cqSUB9xG6Ryev09UPPINxdLQe54E";
 
     private final static String GROUP_ID_TEST = "-522989399";
-    private final static String GROUP_ID = "-522989399";
+    private final static String GROUP_ID = "-1001494059267";
 
     private static Map<String, String> maps = new HashMap<>();
 
@@ -84,14 +84,20 @@ public class CommandService {
             return false;
         }
 
+        JSONObject removeMember = msg.getJSONObject("left_chat_member");
+        JSONObject addMember = msg.getJSONObject("new_chat_member");
+        if (Objects.nonNull(removeMember) || Objects.nonNull(addMember)) {
+            return true;
+        }
+
         String cmd = msg.getString("text");
-        message.setChat(JSONObject.parseObject(msg.getString("chat"), Chat.class));
         String text = getText(cmd);
         if (StringUtils.isEmpty(text)) {
             text = "sorry, no such command!";
         }
 
         message.setText(text);
+        message.setChat(JSONObject.parseObject(msg.getString("chat"), Chat.class));
         if (AIRDROP.equals(cmd)) {
             return sendTextMsg(message);
         } else if (HELP.equals(cmd)) {

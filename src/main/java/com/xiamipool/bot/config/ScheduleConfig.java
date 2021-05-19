@@ -20,14 +20,14 @@ public class ScheduleConfig {
     @Resource
     private CommandService commandService;
 
-    @Scheduled(cron = "0 0 * * * ?")
+    @Scheduled(cron = "0 0 0,4,8,12,16,20 * * ?")
     public void sendDocTask() {
         log.info("send doc start ...");
         commandService.sendDoc("/doc");
         log.info("send doc finish ...");
     }
 
-    @Scheduled(cron = "0 15,45 * * * ?")
+    @Scheduled(cron = "0 30 0,4,8,12,16,20 * * ?")
     public void sendTokenTask() {
         log.info("send token start ...");
         commandService.sendDoc("/token");
